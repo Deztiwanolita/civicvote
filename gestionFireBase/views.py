@@ -1,8 +1,9 @@
 import requests
 from django.shortcuts import render
 
+#quiza cambiar esto de aca mas adelante la linea de datos encuestas
 def obtener_datos_api(request):
-    datosEncuestas = 'http://10.66.225.246:3000/'
+    datosEncuestas = 'http://localhost:3000/api/encuestas'
     
     response = requests.get(datosEncuestas)
     
