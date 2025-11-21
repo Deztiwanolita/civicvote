@@ -1,0 +1,11 @@
+<h1>Votar en: {{ pregunta.texto }}</h1>
+
+<form method="POST">
+  {% csrf_token %}
+  {% for opcion in pregunta.opciones %}
+    <input type="radio" name="opcion" value="{{ opcion }}"> {{ opcion }}<br>
+  {% endfor %}
+  <button type="submit">Enviar voto</button>
+</form>
+
+<a href="{% url 'listar_preguntas' encuesta_id %}">← Volver a preguntas</a>

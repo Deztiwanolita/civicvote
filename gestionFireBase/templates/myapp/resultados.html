@@ -1,0 +1,10 @@
+<h1>Resultados</h1>
+<p><strong>Total de votos:</strong> {{ resultados.totalVotos }}</p>
+
+<ul>
+  {% for key, value in resultados.resultados.items %}
+    <li>{{ key }}: {{ value }}</li>
+  {% endfor %}
+</ul>
+
+<a href="/">← Volver a encuestas</a>

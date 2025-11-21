@@ -1,0 +1,10 @@
+<h1>Preguntas de la encuesta</h1>
+<ul>
+  {% for p in preguntas %}
+    <li>
+      {{ p.texto }}
+      <a href="{% url 'votar' encuesta_id p.id %}">Votar</a>
+    </li>
+  {% endfor %}
+</ul>
+<a href="/">← Volver a encuestas</a>

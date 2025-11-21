@@ -5,7 +5,6 @@ const admin = require('firebase-admin');
 router.get('/:encuestaId/:preguntaId', async (req, res) => {
   try {
     const { encuestaId, preguntaId } = req.params;
-
     const snapshot = await admin
       .firestore()
       .collection('encuestas')
@@ -28,6 +27,8 @@ router.post('/:encuestaId/:preguntaId', async (req, res) => {
     const { encuestaId, preguntaId } = req.params;
     const voto = req.body;
 
+    voto.timestamp = FieldValue.serverTimestamp();
+
     const ref = await admin
       .firestore()
       .collection('encuestas')
@@ -39,8 +40,8 @@ router.post('/:encuestaId/:preguntaId', async (req, res) => {
 
     res.status(201).json({ id: ref.id, ...voto });
   } catch (error) {
-    console.error('Error al registrar voto:', error);
-    res.status(500).send('Error al registrar voto: ' + error.message);
+    console.error('Error al registrar el voto:', error);
+    res.status(500).send('Error al registrar el voto: ' + error.message);
   }
 });
 

@@ -21,12 +21,9 @@ app.use('/api/preguntas', preguntasRoutes);
 app.use('/api/votos', votosRoutes);
 app.use('/api/resultados', resultadosRoutes);
 
-
-
 const PORT = process.env.PORT || 3000;
-app.listen(PORT,'0.0.0.0',  () => {
-    console.log(`Servidor compilado en:
-        - http://localhost:${PORT}
-        -http://192.168.1.2:${PORT}`)
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Servidor ejecutándose en:
+    - http://localhost:${PORT}
+    - http://192.168.1.2:${PORT}`);
 });
-
