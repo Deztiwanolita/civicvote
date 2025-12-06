@@ -1,10 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const admin = require('firebase-admin');
+const { FieldValue } = admin.firestore;
+
+function validarVoto(req, res, next) {
+  const { opcion } = req.body;
+  if (!opcion || opcion.trim() === '') {
+    return res
+      .status(400)
+      .json({ error: 'Debe seleccionar una opción de voto válida.' });
+  }
+  next();
+}
 
 router.get('/:encuestaId/:preguntaId', async (req, res) => {
   try {
     const { encuestaId, preguntaId } = req.params;
+
     const snapshot = await admin
       .firestore()
       .collection('encuestas')
@@ -15,14 +27,16 @@ router.get('/:encuestaId/:preguntaId', async (req, res) => {
       .get();
 
     const votos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    res.status(200).json(votos);
+    return res.status(200).json(votos);
   } catch (error) {
     console.error('Error al obtener votos:', error);
-    res.status(500).send('Error al obtener votos: ' + error.message);
+    return res
+      .status(500)
+      .json({ error: 'Error interno al obtener los votos.' });
   }
 });
 
-router.post('/:encuestaId/:preguntaId', async (req, res) => {
+router.post('/:encuestaId/:preguntaId', validarVoto, async (req, res) => {
   try {
     const { encuestaId, preguntaId } = req.params;
     const voto = req.body;
@@ -38,10 +52,12 @@ router.post('/:encuestaId/:preguntaId', async (req, res) => {
       .collection('votos')
       .add(voto);
 
-    res.status(201).json({ id: ref.id, ...voto });
+    return res.status(201).json({ id: ref.id, ...voto });
   } catch (error) {
-    console.error('Error al registrar el voto:', error);
-    res.status(500).send('Error al registrar el voto: ' + error.message);
+    console.error('Error al registrar voto:', error);
+    return res
+      .status(500)
+      .json({ error: 'No se pudo registrar el voto: ' + error.message });
   }
 });
 

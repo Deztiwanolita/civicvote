@@ -1,10 +1,33 @@
-<h1>Preguntas de la encuesta</h1>
-<ul>
-  {% for p in preguntas %}
-    <li>
-      {{ p.texto }}
-      <a href="{% url 'votar' encuesta_id p.id %}">Votar</a>
-    </li>
-  {% endfor %}
-</ul>
-<a href="/">← Volver a encuestas</a>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Preguntas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <div class="container py-4">
+    <h1 class="text-center mb-4">Preguntas</h1>
+
+    {% if preguntas and preguntas|length > 0 %}
+      <ul class="list-group">
+        {% for p in preguntas %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ p.texto }}
+          <a class="btn btn-sm btn-success"
+             href="{% url 'votar' encuesta_id p.id %}">
+            Votar
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="alert alert-info text-center">
+        No hay preguntas registradas para esta encuesta.
+      </div>
+    {% endif %}
+
+    <a class="btn btn-secondary mt-3" href="/">Volver</a>
+  </div>
+</body>
+</html>

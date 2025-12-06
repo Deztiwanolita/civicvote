@@ -1,10 +1,59 @@
-<h1>Resultados</h1>
-<p><strong>Total de votos:</strong> {{ resultados.totalVotos }}</p>
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultados de la encuesta</title>
 
-<ul>
-  {% for key, value in resultados.resultados.items %}
-    <li>{{ key }}: {{ value }}</li>
-  {% endfor %}
-</ul>
+  <!-- ✅ Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<a href="/">← Volver a encuestas</a>
+  <!-- ✅ Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-light">
+  <div class="container py-4">
+    <h1 class="text-center mb-4">Resultados</h1>
+
+    {% if resultados.resultados %}
+      <!-- Área del gráfico -->
+      <div class="mb-5 d-flex justify-content-center">
+        <div style="position:relative; width:280px; height:280px;">
+          <canvas id="graficoResultados"></canvas>
+        </div>
+      </div>
+
+      <!-- Lista textual de resultados -->
+      <ul class="list-group mb-3">
+        {% for opcion, cantidad in resultados.resultados.items %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ opcion }}
+            <span class="badge bg-primary rounded-pill">{{ cantidad }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <p class="text-center fs-5">
+        <strong>Total de votos:</strong> {{ resultados.totalVotos }}
+      </p>
+    {% else %}
+      <div class="alert alert-info text-center">
+        Aún no hay votos registrados para esta pregunta.
+      </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+      <a href="/" class="btn btn-secondary">Volver al inicio</a>
+    </div>
+  </div>
+
+  <!-- ✅ JSON "crudo" que pasa Django (puede tener comillas simples) -->
+  <script id="data-resultados" type="application/json">
+    {{ resultados.resultados|safe }}
+  </script>
+
+  <!-- ✅ Script de Chart.js externo -->
+  <script src="{% static 'js/grafico_resultados.js' %}"></script>
+</body>
+</html>
