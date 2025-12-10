@@ -1,5 +1,3 @@
-// Gráfico circular de resultados
-
 let rawData = document.getElementById('data-resultados').textContent.trim();
 
 rawData = rawData

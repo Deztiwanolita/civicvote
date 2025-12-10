@@ -1,4 +1,5 @@
 const express = require('express');
+console.log("✅ Rutas de /api/encuestas cargadas");
 const router = express.Router();
 const admin = require('firebase-admin');
 
@@ -21,6 +22,35 @@ router.post('/', async (req, res) => {
   } catch (error) {
     console.error('Error al crear la encuesta:', error);
     res.status(500).send('Error interno al crear la encuesta');
+  }
+});
+
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = req.body;
+
+    
+    if (!data || Object.keys(data).length === 0) {
+      return res.status(400).json({ error: 'No se enviaron datos para actualizar.' });
+    }
+
+    await admin.firestore().collection('encuestas').doc(id).update(data);
+    res.status(200).json({ id, mensaje: 'Encuesta actualizada correctamente.' });
+  } catch (error) {
+    console.error('Error al actualizar la encuesta:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await admin.firestore().collection('encuestas').doc(id).delete();
+    res.status(200).json({ mensaje: 'Encuesta eliminada correctamente.' });
+  } catch (error) {
+    console.error('Error al eliminar encuesta:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 

@@ -45,6 +45,8 @@
 
     <div class="text-center mt-4">
       <a href="/" class="btn btn-secondary">Volver al inicio</a>
+      <a href="{% url 'exportar_csv' encuesta_id=encuesta_id pregunta_id=pregunta_id %}" 
+      class="btn btn-success mt-2"> Descargar CSV </a>
     </div>
   </div>
 

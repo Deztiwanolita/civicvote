@@ -16,6 +16,7 @@ const preguntasRoutes = require('./PreguntasRoutes');
 const votosRoutes = require('./VotosRoutes');
 const resultadosRoutes = require('./ResultadosRoutes');
 
+
 app.use('/api/encuestas', encuestasRoutes);
 app.use('/api/preguntas', preguntasRoutes);
 app.use('/api/votos', votosRoutes);
