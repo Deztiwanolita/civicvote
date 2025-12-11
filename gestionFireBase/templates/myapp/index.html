@@ -4,34 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel de Encuestas – CivicVote</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
-<!-- SDK de Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBfQTIS3EsXmtJ9CKQrarMqiBokZnulSjA",
-    authDomain: "civicvote-4b73d.firebaseapp.com",
-    projectId: "civicvote-4b73d",
-    storageBucket: "civicvote-4b73d.firebasestorage.app",
-    messagingSenderId: "43063735193",
-    appId: "1:43063735193:web:90efe8c323b38404185908"
-  };
-  const app = firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-</script>
-
 <body class="bg-light">
+
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
       <a class="navbar-brand fw-bold" href="/">CivicVote</a>
-      <div class="d-flex">
-        <button class="btn btn-outline-light btn-sm" onclick="logout()">Cerrar sesión</button>
+      <div class="ms-auto">
+        <button id="authBtn" class="btn btn-outline-light btn-sm"></button>
       </div>
     </div>
   </nav>
@@ -103,7 +85,7 @@
           <a class="btn btn-sm btn-danger"
              href="{% url 'eliminar_encuesta' encuesta_id=item.id %}"
              onclick="return confirm('¿Seguro que deseas eliminar esta encuesta?');">
-             Eliminar
+            Eliminar
           </a>
         </div>
         {% else %}
@@ -116,18 +98,48 @@
       </li>
       {% endfor %}
     </ul>
-
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Logout Firebase -->
-  <script>
-    function logout() {
-      auth.signOut()
-        .then(() => { window.location.href = '/login'; })
-        .catch((error) => alert('Error al cerrar sesión: ' + error.message));
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBfQTIS3EsXmtJ9CKQrarMqiBokZnulSjA",
+    authDomain: "civicvote-4b73d.firebaseapp.com",
+    projectId: "civicvote-4b73d",
+    storageBucket: "civicvote-4b73d.firebasestorage.app",
+    messagingSenderId: "43063735193",
+    appId: "1:43063735193:web:90efe8c323b38404185908"
+  };
+
+  const app = firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const btn = document.getElementById('authBtn');
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      btn.textContent = "Cerrar sesión";
+      btn.classList.remove("btn-outline-light");
+      btn.classList.add("btn-light", "text-primary");
+      btn.onclick = () => {
+        auth.signOut().then(() => {
+          document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+          window.location.href = "/login";
+        });
+      };
+
+      user.getIdToken(true).then(token => {
+        document.cookie = `token=${token}; path=/`;
+      });
+    } else {
+      btn.textContent = "Iniciar sesión";
+      btn.classList.add("btn-outline-light");
+      btn.classList.remove("btn-light", "text-primary");
+      btn.onclick = () => (window.location.href = "/login");
     }
-  </script>
+  });
+</script>
 </body>
 </html>

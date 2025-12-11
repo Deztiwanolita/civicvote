@@ -1,11 +1,7 @@
 const express = require('express');
-const admin = require('firebase-admin');
-const db = require('../serviceAccountKey.json');
+const { admin, db } = require('./firebase');
 const cors = require('cors');
-
-admin.initializeApp({
-  credential: admin.credential.cert(db),
-});
+const authMiddleware = require('./authMiddleware');
 
 const app = express();
 app.use(cors());
@@ -17,9 +13,10 @@ const votosRoutes = require('./VotosRoutes');
 const resultadosRoutes = require('./ResultadosRoutes');
 
 
-app.use('/api/encuestas', encuestasRoutes);
-app.use('/api/preguntas', preguntasRoutes);
-app.use('/api/votos', votosRoutes);
+app.use('/api/encuestas', authMiddleware, encuestasRoutes);
+app.use('/api/preguntas', authMiddleware, preguntasRoutes);
+app.use('/api/votos', authMiddleware, votosRoutes);
+
 app.use('/api/resultados', resultadosRoutes);
 
 const PORT = process.env.PORT || 3000;
