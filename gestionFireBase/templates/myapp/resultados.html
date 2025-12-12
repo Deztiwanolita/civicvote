@@ -1,5 +1,5 @@
 {% extends 'myapp/base.html' %}
-
+{% load static %}
 {% block content %}
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -39,6 +39,16 @@
                      {% endfor %}
                 {% endfor %}
 
+                <div class="my-5 text-center">
+                    <h4 class="mb-3">Gráfico visual</h4>
+                    <div style="position:relative; width:280px; height:280px; margin:auto;">
+                        <canvas id="graficoResultados"></canvas>
+                    </div>
+                </div>
+
+                <script id="data-resultados" type="application/json">
+                    {{ resultados.resultados|safe }}
+                </script>
                 <hr>
                 <h4 class="text-end text-muted">Total Votos: {{ resultados.totalVotos }}</h4>
 
@@ -54,4 +64,8 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/grafico_resultados.js' %}"></script>
+
 {% endblock %}
