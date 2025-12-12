@@ -1,33 +1,58 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <title>Preguntas</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-  <div class="container py-4">
-    <h1 class="text-center mb-4">Preguntas</h1>
+{% extends 'myapp/base.html' %}
 
-    {% if preguntas and preguntas|length > 0 %}
-      <ul class="list-group">
-        {% for p in preguntas %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          {{ p.texto }}
-          <a class="btn btn-sm btn-success"
-             href="{% url 'votar' encuesta_id p.id %}">
-            Votar
-          </a>
-        </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <div class="alert alert-info text-center">
-        No hay preguntas registradas para esta encuesta.
-      </div>
-    {% endif %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white py-3">
+                <h4 class="mb-0"><i class="fas fa-vote-yea"></i> Votación</h4>
+            </div>
+            <div class="card-body p-4">
 
-    <a class="btn btn-secondary mt-3" href="/">Volver</a>
-  </div>
-</body>
-</html>
+                <h3 class="fw-bold text-center mb-2">{{ preguntas.titulo }}</h3>
+                <p class="text-muted text-center mb-4">{{ preguntas.descripcion }}</p>
+
+                {% if preguntas.error %}
+                    <div class="alert alert-danger">{{ preguntas.error }}</div>
+                {% endif %}
+
+                <form method="POST" action="{% url 'votar' encuesta_id=encuesta_id pregunta_id='general' %}">
+                    {% csrf_token %}
+                    
+                    <div class="d-grid gap-3">
+                        {% if preguntas.opciones %}
+                            {% for opcion in preguntas.opciones %}
+                                
+                                {% if opcion.texto %}
+                                    <input type="radio" class="btn-check" name="opcion" id="opt_{{ forloop.counter }}" value="{{ opcion.texto }}" required>
+                                    <label class="btn btn-outline-primary btn-lg text-start px-4" for="opt_{{ forloop.counter }}">
+                                        {{ opcion.texto }}
+                                    </label>
+                                {% else %}
+                                    <input type="radio" class="btn-check" name="opcion" id="opt_{{ forloop.counter }}" value="{{ opcion }}" required>
+                                    <label class="btn btn-outline-primary btn-lg text-start px-4" for="opt_{{ forloop.counter }}">
+                                        {{ opcion }}
+                                    </label>
+                                {% endif %}
+
+                            {% endfor %}
+                        {% else %}
+                            <div class="alert alert-warning text-center">
+                                <i class="fas fa-exclamation-triangle"></i> No hay opciones disponibles para votar en esta encuesta.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-4 d-grid">
+                        <button type="submit" class="btn btn-success btn-lg shadow-sm">
+                            Confirmar Voto <i class="fas fa-paper-plane ms-2"></i>
+                        </button>
+                        <a href="{% url 'home' %}" class="btn btn-link text-secondary mt-2">Cancelar</a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -10,5 +10,6 @@ urlpatterns = [
     path('editar/<str:encuesta_id>/', views.editar_encuesta, name='editar_encuesta'),
     path('eliminar/<str:encuesta_id>/', views.eliminar_encuesta, name='eliminar_encuesta'),
     path('login/', views.login_view, name='login'),
-    
+    path('crear/', views.crear_encuesta, name='crear_encuesta'),
+    path('alternar/<str:encuesta_id>/', views.alternar_estado, name='alternar_estado'),
 ]

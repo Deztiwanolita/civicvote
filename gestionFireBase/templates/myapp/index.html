@@ -1,145 +1,74 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Panel de Encuestas – CivicVote</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+{% extends 'myapp/base.html' %}
 
-<body class="bg-light">
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-dark mb-0">Panel de Control</h2>
+    
+    <a href="{% url 'crear_encuesta' %}" class="btn btn-success btn-lg shadow admin-only">
+        <i class="fas fa-plus-circle me-2"></i>Nueva Encuesta
+    </a>
+</div>
 
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container-fluid">
-      <a class="navbar-brand fw-bold" href="/">CivicVote</a>
-      <div class="ms-auto">
-        <button id="authBtn" class="btn btn-outline-light btn-sm"></button>
-      </div>
-    </div>
-  </nav>
+{% if datos %}
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for item in datos %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 {% if item.activa == False %}bg-light{% endif %}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        {% if item.activa == False %}
+                            <span class="badge bg-danger">Cerrada</span>
+                        {% else %}
+                            <span class="badge bg-success">Activa</span>
+                        {% endif %}
+                        <small class="text-muted">ID: {{ item.id|slice:":4" }}...</small>
+                    </div>
+                    
+                    <h5 class="card-title fw-bold text-primary">{{ item.titulo }}</h5>
+                    <p class="card-text text-muted small">
+                        {{ item.descripcion|truncatechars:80 }}
+                    </p>
+                </div>
+                
+                <div class="card-footer bg-white border-0 pb-3">
+                    <div class="d-grid gap-2">
+                        
+                        {% if item.activa != False %}
+                            <a href="{% url 'listar_preguntas' encuesta_id=item.id %}" class="btn btn-outline-primary">
+                                <i class="fas fa-vote-yea"></i> Participar
+                            </a>
+                        {% else %}
+                             <button class="btn btn-secondary" disabled>Votación Finalizada</button>
+                        {% endif %}
+                        
+                        <a href="{% url 'ver_resultados' encuesta_id=item.id pregunta_id='general' %}" class="btn btn-outline-info text-dark btn-sm">
+                             <i class="fas fa-chart-bar"></i> Ver Resultados
+                        </a>
 
-  <div class="container py-4">
-    <h1 class="text-center mb-4">Gestión de Encuestas</h1>
+                        <div class="admin-only mt-2 pt-2 border-top">
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'alternar_estado' item.id %}" class="btn btn-sm {% if item.activa == False %}btn-success{% else %}btn-warning{% endif %}" title="Cambiar Estado">
+                                    <i class="fas {% if item.activa == False %}fa-play{% else %}fa-pause{% endif %}"></i>
+                                </a>
+                                
+                                <a href="{% url 'editar_encuesta' item.id %}" class="btn btn-sm btn-light border text-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'eliminar_encuesta' item.id %}" class="btn btn-sm btn-light border text-danger" onclick="return confirm('¿Borrar encuesta?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
 
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                    </div>
+                </div>
+            </div>
         </div>
-      {% endfor %}
-    {% endif %}
-
-    <div class="table-responsive mb-5">
-      <table class="table table-bordered table-striped">
-        <thead class="table-dark text-center">
-          <tr>
-            <th>ID</th>
-            <th>Título</th>
-            <th>Preguntas</th>
-            <th>Resultados</th>
-            <th>Votos</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for item in datos %}
-          <tr>
-            <td>{{ item.id }}</td>
-            <td>{{ item.titulo|default:"—" }}</td>
-            <td>{{ item.preguntas|default:"—" }}</td>
-            <td>{{ item.resultados|default:"—" }}</td>
-            <td>{{ item.votos|default:"—" }}</td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="5" class="text-center text-muted">No hay encuestas disponibles.</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+        {% endfor %}
     </div>
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="mb-0">Encuestas disponibles</h2>
-      <a href="#" class="btn btn-success btn-sm disabled">+ Nueva (API)</a>
+{% else %}
+    <div class="text-center py-5">
+        <h4 class="text-muted">No hay encuestas registradas</h4>
     </div>
-
-    <ul class="list-group">
-      {% for item in datos %}
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <div>
-          <strong>{{ item.titulo|default:"(Sin título)" }}</strong>
-          <small class="text-muted d-block">{{ item.descripcion|default:"Sin descripción" }}</small>
-        </div>
-
-        {% if item.id %}
-        <div class="btn-group">
-          <a class="btn btn-sm btn-primary"
-             href="{% url 'listar_preguntas' encuesta_id=item.id %}">
-            Votar
-          </a>
-          <a class="btn btn-sm btn-warning"
-             href="{% url 'editar_encuesta' encuesta_id=item.id %}">
-            Editar
-          </a>
-          <a class="btn btn-sm btn-danger"
-             href="{% url 'eliminar_encuesta' encuesta_id=item.id %}"
-             onclick="return confirm('¿Seguro que deseas eliminar esta encuesta?');">
-            Eliminar
-          </a>
-        </div>
-        {% else %}
-          <span class="text-secondary">Sin ID</span>
-        {% endif %}
-      </li>
-      {% empty %}
-      <li class="list-group-item text-center text-muted">
-        No hay encuestas registradas.
-      </li>
-      {% endfor %}
-    </ul>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBfQTIS3EsXmtJ9CKQrarMqiBokZnulSjA",
-    authDomain: "civicvote-4b73d.firebaseapp.com",
-    projectId: "civicvote-4b73d",
-    storageBucket: "civicvote-4b73d.firebasestorage.app",
-    messagingSenderId: "43063735193",
-    appId: "1:43063735193:web:90efe8c323b38404185908"
-  };
-
-  const app = firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const btn = document.getElementById('authBtn');
-
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      btn.textContent = "Cerrar sesión";
-      btn.classList.remove("btn-outline-light");
-      btn.classList.add("btn-light", "text-primary");
-      btn.onclick = () => {
-        auth.signOut().then(() => {
-          document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-          window.location.href = "/login";
-        });
-      };
-
-      user.getIdToken(true).then(token => {
-        document.cookie = `token=${token}; path=/`;
-      });
-    } else {
-      btn.textContent = "Iniciar sesión";
-      btn.classList.add("btn-outline-light");
-      btn.classList.remove("btn-light", "text-primary");
-      btn.onclick = () => (window.location.href = "/login");
-    }
-  });
-</script>
-</body>
-</html>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicVote</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: linear-gradient(to right, #0d6efd, #0043a8); }
+        /* Ocultar elementos de admin por defecto hasta verificar usuario */
+        .admin-only { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'home' %}"><i class="fas fa-vote-yea me-2"></i>CivicVote</a>
+            <div class="d-flex align-items-center">
+                <span id="userEmail" class="text-white me-3 small d-none d-md-block"></span>
+                <button onclick="cerrarSesion()" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container pb-5">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBfQTIS3EsXmtJ9CKQrarMqiBokZnulSjA", // TU API KEY
+            authDomain: "civicvote-4b73d.firebaseapp.com",
+            projectId: "civicvote-4b73d",
+            // ... resto de tu config si la necesitas
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // 1. DEFINIR AQUÍ QUIÉN ES EL ADMINISTRADOR
+        const ADMIN_EMAIL = "ianriveracornejo@gmail.com"; // <--- ¡PON TU CORREO AQUÍ!
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('userEmail').innerText = user.email;
+                
+                // Lógica de ROLES
+                if (user.email === ADMIN_EMAIL) {
+                    // Si es admin, mostramos los botones ocultos
+                    document.querySelectorAll('.admin-only').forEach(el => {
+                        el.style.setProperty('display', 'inline-block', 'important');
+                    });
+                }
+                
+                // Cookie para Django
+                user.getIdToken(true).then(token => {
+                    document.cookie = `token=${token}; path=/`;
+                });
+            } else {
+                window.location.href = "/login";
+            }
+        });
+
+        // 2. LOGOUT REAL (Soluciona el problema de "inicia solo")
+        function cerrarSesion() {
+            auth.signOut().then(() => {
+                // Borrar cookie
+                document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                // Redirigir
+                window.location.href = "/login";
+            });
+        }
+    </script>
+</body>
+</html>

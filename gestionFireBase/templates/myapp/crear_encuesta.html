@@ -1,0 +1,72 @@
+{% extends 'myapp/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow border-0">
+            <div class="card-header bg-success text-white py-3">
+                <h4 class="mb-0"><i class="fas fa-plus-circle"></i> Nueva Encuesta</h4>
+            </div>
+            <div class="card-body p-4">
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Título</label>
+                        <input type="text" name="titulo" class="form-control form-control-lg" placeholder="Ej: Delegado de Curso" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="3" placeholder="Información adicional..."></textarea>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h5 class="mb-3">Opciones de Voto</h5>
+                    <div id="lista-opciones">
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">1</span>
+                            <input type="text" name="opcion" class="form-control" placeholder="Opción A" required>
+                        </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">2</span>
+                            <input type="text" name="opcion" class="form-control" placeholder="Opción B" required>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-outline-secondary btn-sm mb-4" onclick="agregarCampo()">
+                        <i class="fas fa-plus"></i> Agregar otra opción
+                    </button>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-paper-plane"></i> Publicar Encuesta
+                        </button>
+                        <a href="{% url 'home' %}" class="btn btn-light text-muted">Cancelar</a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function agregarCampo() {
+        const contenedor = document.getElementById('lista-opciones');
+        const num = contenedor.children.length + 1;
+        const div = document.createElement('div');
+        div.className = 'input-group mb-2';
+        div.innerHTML = `
+            <span class="input-group-text">${num}</span>
+            <input type="text" name="opcion" class="form-control" required>
+            <button class="btn btn-outline-danger" type="button" onclick="this.parentElement.remove()">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
+        contenedor.appendChild(div);
+    }
+</script>
+{% endblock %}
